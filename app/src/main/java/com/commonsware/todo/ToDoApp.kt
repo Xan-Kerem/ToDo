@@ -8,8 +8,12 @@ import org.koin.dsl.module
 
 class ToDoApp : Application() {
     private val koinModule = module {
-        single { ToDoRepository()
-        viewModel { RosterMotor(get()) }}
+        single {
+            ToDoRepository()
+        }
+        viewModel {
+            RosterMotor(get())
+        }
     }
 
     override fun onCreate() {
