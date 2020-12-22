@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import com.commonsware.todo.databinding.TodoRowBinding
 
-class RosterAdapter(private val layoutInflater: LayoutInflater) :
+class RosterAdapter(private val layoutInflater: LayoutInflater, private val onCheckBoxToggle : (ToDoModel) -> Unit) :
     ListAdapter<ToDoModel, RosterRowHolder>(DiffCallback) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        RosterRowHolder(TodoRowBinding.inflate(layoutInflater, parent, false))
+        RosterRowHolder(TodoRowBinding.inflate(layoutInflater, parent, false), onCheckBoxToggle)
 
     override fun onBindViewHolder(holder: RosterRowHolder, position: Int) {
         holder.bind(getItem(position))

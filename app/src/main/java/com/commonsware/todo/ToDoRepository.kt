@@ -17,6 +17,13 @@ class ToDoRepository {
             isCompleted = true,
             notes = "See https://wares.commonsware.com"
         )
-
     )
+
+    fun save(model: ToDoModel) {
+        items = if (items.any { it.id == model.id }) {
+            items.map { if (it.id == model.id) model else it }
+        } else {
+            items + model
+        }
+    }
 }
