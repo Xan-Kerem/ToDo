@@ -3,4 +3,7 @@
     <string name="msg_empty">placeholder Text</string>
     <string name="menu_about">About</string>
     <string name="created_on">Created on</string>
+    <string name="menu_edit">Edit</string>
+    <string name="desc">Description</string>
+    <string name="notes">Notes</string>
 </resources>
