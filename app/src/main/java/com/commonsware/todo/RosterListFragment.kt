@@ -39,7 +39,7 @@ class RosterListFragment : Fragment() {
 
             addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
 
-            adapter.submitList(motor.items)
+            adapter.submitList(motor.getItems())
             binding.empty.visibility = View.GONE
         }
     }

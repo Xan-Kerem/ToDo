@@ -1,10 +1,11 @@
 package com.commonsware.todo
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.commonsware.todo.databinding.TodoEditBinding
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -29,6 +30,50 @@ class EditFragment : Fragment() {
                 desc.setText(it.description)
                 notes.setText(it.notes)
             }
+        }
+
+        setHasOptionsMenu(true)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.actions_edit, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.save -> {
+                save()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    private fun save() {
+        val model = motor.getModel()
+        val edited = model?.copy(
+            description = binding.desc.text.toString(), isCompleted = binding.isCompleted.isChecked,
+            notes = binding.notes.text.toString()
+        ) ?: ToDoModel(
+            description = binding.desc.toString(),
+            isCompleted = binding.isCompleted.isChecked,
+            notes = binding.notes.toString()
+        )
+        edited.let { motor.save(it) }
+        navToDisplay()
+    }
+
+    private fun navToDisplay() {
+        hideKeyboard()
+        findNavController().popBackStack()
+    }
+
+    private fun hideKeyboard() {
+        view?.let {
+            val imm = context?.getSystemService<InputMethodManager>()
+
+            imm?.hideSoftInputFromWindow(it.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
         }
     }
 }
