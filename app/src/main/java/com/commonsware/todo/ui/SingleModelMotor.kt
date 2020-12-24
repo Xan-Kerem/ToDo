@@ -1,6 +1,8 @@
-package com.commonsware.todo
+package com.commonsware.todo.ui
 
 import androidx.lifecycle.ViewModel
+import com.commonsware.todo.repo.ToDoModel
+import com.commonsware.todo.repo.ToDoRepository
 
 class SingleModelMotor(private val repository: ToDoRepository, private val modelId: String?) :
     ViewModel() {
