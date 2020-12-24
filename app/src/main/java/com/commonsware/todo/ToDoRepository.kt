@@ -1,23 +1,7 @@
 package com.commonsware.todo
 
 class ToDoRepository {
-    var items = listOf(
-        ToDoModel(
-            description = "Buy a copy of _Exploring Android_",
-            isCompleted = true,
-            notes = "See https://www.google.com"
-        ),
-        ToDoModel(
-            description = "Buy a copy of  Android_",
-            isCompleted = true,
-            notes = "See https://wares.commonsware.com"
-        ),
-        ToDoModel(
-            description = "Buy an Android_",
-            isCompleted = true,
-            notes = "See https://wares.commonsware.com"
-        )
-    )
+    var items = emptyList<ToDoModel>()
 
     fun save(model: ToDoModel) {
         items = if (items.any { it.id == model.id }) {
@@ -27,5 +11,9 @@ class ToDoRepository {
         }
     }
 
-    fun find(modelId: String) = items.find { it.id == modelId }
+    fun find(modelId: String?) = items.find { it.id == modelId }
+
+    fun delete(model: ToDoModel) {
+        items = items.filter { it.id != model.id }
+    }
 }

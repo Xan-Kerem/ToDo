@@ -16,6 +16,11 @@ class EditFragment : Fragment() {
     private val args: EditFragmentArgs by navArgs()
     private val motor: SingleModelMotor by viewModel { parametersOf(args.modelId) }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -26,17 +31,18 @@ class EditFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         motor.getModel()?.let {
             binding.apply {
-                isCompleted.isChecked = it.isCompleted
-                desc.setText(it.description)
-                notes.setText(it.notes)
+                binding.isCompleted.isChecked = it.isCompleted
+                binding.desc.setText(it.description)
+                binding.notes.setText(it.notes)
             }
         }
-
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.actions_edit, menu)
+
+        menu.findItem(R.id.delete).isVisible = args.modelId != null
+
         super.onCreateOptionsMenu(menu, inflater)
     }
 
@@ -46,6 +52,10 @@ class EditFragment : Fragment() {
                 save()
                 return true
             }
+            R.id.delete -> {
+                delete()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -53,12 +63,13 @@ class EditFragment : Fragment() {
     private fun save() {
         val model = motor.getModel()
         val edited = model?.copy(
-            description = binding.desc.text.toString(), isCompleted = binding.isCompleted.isChecked,
+            description = binding.desc.text.toString(),
+            isCompleted = binding.isCompleted.isChecked,
             notes = binding.notes.text.toString()
         ) ?: ToDoModel(
-            description = binding.desc.toString(),
+            description = binding.desc.text.toString(),
             isCompleted = binding.isCompleted.isChecked,
-            notes = binding.notes.toString()
+            notes = binding.notes.text.toString()
         )
         edited.let { motor.save(it) }
         navToDisplay()
@@ -75,5 +86,16 @@ class EditFragment : Fragment() {
 
             imm?.hideSoftInputFromWindow(it.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
         }
+    }
+
+    private fun navToList() {
+        hideKeyboard()
+        findNavController().popBackStack(R.id.rosterListFragment, false)
+    }
+
+    private fun delete() {
+        val model = motor.getModel()
+        model?.let { motor.delete(it) }
+        navToList()
     }
 }
