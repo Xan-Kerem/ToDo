@@ -45,7 +45,18 @@ class RosterListFragment : Fragment() {
 
             addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
 
-            adapter.submitList(motor.getItems())
+
+            motor.states.observe(viewLifecycleOwner) { state ->
+                adapter.submitList(state.items)
+                when {
+                    state.items.isEmpty() -> {
+                        binding.empty.visibility = View.VISIBLE
+                        binding.empty.setText(R.string.msg_empty)
+                    }
+                    else -> binding.empty.visibility = View.GONE
+                }
+            }
+
             binding.empty.visibility = if (adapter.itemCount == 0) View.VISIBLE else View.GONE
         }
     }
