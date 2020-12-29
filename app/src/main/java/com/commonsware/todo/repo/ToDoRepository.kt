@@ -5,14 +5,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
+enum class FilterMode { ALL, OUTSTANDING, COMPLETED }
 
 class ToDoRepository(
     private val store: ToDoEntity.Store,
     private val appScope: CoroutineScope
 ) {
 
-    fun items(): Flow<List<ToDoModel>> =
-        store.all().map { all -> all.map { it.toModel() } }
+    fun items(filterMode: FilterMode = FilterMode.ALL): Flow<List<ToDoModel>> =
+        filteredEntities(filterMode).map { all -> all.map { it.toModel() } }
+
 
     fun find(id: String?): Flow<ToDoModel?> = store.find(id).map { it?.toModel() }
 
@@ -26,6 +28,12 @@ class ToDoRepository(
         withContext(appScope.coroutineContext) {
             store.delete(ToDoEntity(model))
         }
+    }
+
+    private fun filteredEntities(filterMode: FilterMode) = when (filterMode) {
+        FilterMode.ALL -> store.all()
+        FilterMode.COMPLETED -> store.filtered(true)
+        FilterMode.OUTSTANDING -> store.filtered(false)
     }
 
 
