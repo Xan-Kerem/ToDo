@@ -1,8 +1,13 @@
 package com.commonsware.todo.ui.roster
 
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,8 +16,11 @@ import com.commonsware.todo.RosterAdapter
 import com.commonsware.todo.databinding.TodoRosterBinding
 import com.commonsware.todo.repo.FilterMode
 import com.commonsware.todo.repo.ToDoModel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
+private const val REQUEST_SAVE = 1337
 
 class RosterListFragment : Fragment() {
     // viewModel by Koin
@@ -20,6 +28,7 @@ class RosterListFragment : Fragment() {
     private lateinit var binding: TodoRosterBinding
 
     private val menuMap = mutableMapOf<FilterMode, MenuItem>()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +75,23 @@ class RosterListFragment : Fragment() {
             }
 
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            motor.navEvents.collect { nav ->
+                when (nav) {
+                    is RosterMotor.Nav.ViewReport -> viewReport(nav.doc)
+                }
+            }
+
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_SAVE) {
+            if (resultCode == Activity.RESULT_OK) {
+                data?.data?.let { motor.saveReport(it) }
+            }
+        }
     }
 
     private fun displayModel(model: ToDoModel) {
@@ -107,6 +133,10 @@ class RosterListFragment : Fragment() {
                 item.isChecked = true
                 motor.load(FilterMode.OUTSTANDING)
             }
+            R.id.save -> {
+                saveReport()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -114,6 +144,30 @@ class RosterListFragment : Fragment() {
     private fun add() {
         findNavController().navigate(
             RosterListFragmentDirections.createModel()
+        )
+    }
+
+    private fun safeStartActivity(intent: Intent, resultCode: Int? = null) {
+        try {
+            resultCode?.let { startActivityForResult(intent, it) } ?: startActivity(intent)
+        } catch (t: Throwable) {
+            Toast.makeText(requireContext(), R.string.oops, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveReport() {
+        safeStartActivity(
+            Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("text/html"), REQUEST_SAVE
+        )
+    }
+
+    private fun viewReport(uri: Uri) {
+        safeStartActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                uri
+            ).setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         )
     }
 

@@ -78,4 +78,7 @@ dependencies {
 
     //live data
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
+
+    // to html
+    implementation "com.github.jknack:handlebars:4.2.0"
 }
