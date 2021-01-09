@@ -80,6 +80,7 @@ class RosterListFragment : Fragment() {
             motor.navEvents.collect { nav ->
                 when (nav) {
                     is RosterMotor.Nav.ViewReport -> viewReport(nav.doc)
+                    is RosterMotor.Nav.ShareReport -> shareReport(nav.doc)
                 }
             }
 
@@ -137,6 +138,10 @@ class RosterListFragment : Fragment() {
                 saveReport()
                 return true
             }
+            R.id.share -> {
+                motor.shareReport()
+                return true
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -169,6 +174,14 @@ class RosterListFragment : Fragment() {
                 uri
             ).setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         )
+    }
+
+    private fun shareReport(doc: Uri) {
+        safeStartActivity(Intent(Intent.ACTION_SEND).apply {
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            type = "text/html"
+            putExtra(Intent.EXTRA_STREAM, doc)
+        })
     }
 
 }

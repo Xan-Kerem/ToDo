@@ -25,7 +25,7 @@ class ToDoApp : Application() {
             ToDoRepository(get<ToDoDatabase>().todoStore(), get(named("appScope")))
         }
         viewModel {
-            RosterMotor(get(), get())
+            RosterMotor(get(), get(), androidContext(), get(named("appScope")))
         }
 
         viewModel { (modelId: String) -> SingleModelMotor(get(), modelId) }
